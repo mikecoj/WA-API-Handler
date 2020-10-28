@@ -1,0 +1,15 @@
+{
+  "name": "WA-API-Handler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Mike Cojocari",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/google-apps-script": "^1.0.16"
+  }
+}
