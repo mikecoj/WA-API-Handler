@@ -1,11 +1,21 @@
 const App = () => {
 	let methods = [];
-	const method_obj = (name = '', parameters = {}, handler = () => {}) => {
+	let req = {};
+	const method_obj = (type = '', name = '', parameters = {}, handler = () => {}) => {
 		return {
+			type,
 			name,
 			parameters,
 			handler,
 		};
+	};
+	const requestParser = (request) => {
+		const type = request.hasOwnProperty('postData') ? 'POST' : 'GET';
+		const path = request.hasOwnProperty('pathInfo') ? request.pathInfo : null;
+		const query = request.hasOwnProperty('postData') ? request.postData.contents : request.queryString;
+		const params = request.parameter;
+		const method = path == null && params.hasOwnProperty('method') ? params.method : path;
+		req = { type, path, query, params, method };
 	};
 	const response = {
 		res_ok: false,
@@ -40,54 +50,76 @@ const App = () => {
 		},
 	};
 
-	const post = (method, params = [], handler) => methods.push(method_obj(method, params, handler));
+	const post = (method, params = [], handler) => methods.push(method_obj('POST', method, params, handler));
+	const get = (method, params = [], handler) => methods.push(method_obj('GET', method, params, handler));
 
-	const match = (req, res = response) => {
-		if (!requestPathValidator(req)) return res.send({ code: 404, result: 'Not Found: Missing Method' });
-		const methodMatch = methodValidator(req, methods);
-		if (!methodMatch)
-			return res.send({ code: 404, result: `Not Found: ${req.pathInfo !== '' ? req.pathInfo + ' Is Not Recognized' : 'Method Is Not Recognized'}` });
-		if (!parameterValidatorAll(req, methodMatch)) return res.send({ code: 400, result: 'Bad Request: Invalid Parameter(s)' });
-		if (!parameterValidatorRequired(req, methodMatch)) return res.send({ code: 400, result: 'Bad Request: Required Parameter(s) Missing' });
-		if (!parameterValidatorEmpty(req)) return res.send({ code: 400, result: 'Bad Request: Empty Parameter(s)' });
-		if (!parameterValidatorType(req, methodMatch)) return res.send({ code: 400, result: 'Bad Request: Wrong Parameter(s) Type' });
-		methodMatch.handler.apply(null, [req, res]);
+	const handle = (request, res) => {
+		requestParser(request);
+		if (match(req, res)) {
+			const methodMatch = methods.find((method) => method.name === req.method);
+			methodMatch.handler.apply(null, [req, res]);
+		}
 	};
 
-	const requestPathValidator = (request) => {
-		// check if request object has a method field
-		return request.hasOwnProperty('pathInfo');
+	const match = (req, res) => {
+		if (req.method == null) {
+			res.send({ code: 404, result: 'Not Found: Missing Method' });
+			return false;
+		}
+		if (!methodValidator(req, methods)) {
+			res.send({ code: 404, result: `Not Found: ${req.method !== '' ? req.method + ' Is Not Recognized' : 'Unrecognized Method'}` });
+			return false;
+		}
+
+		const methodMatch = methods.find((method) => method.name === req.method);
+		if (!parameterValidatorAll(req, methodMatch)) {
+			res.send({ code: 400, result: 'Bad Request: Invalid Parameter(s)' });
+			return false;
+		}
+		if (!parameterValidatorRequired(req, methodMatch)) {
+			res.send({ code: 400, result: 'Bad Request: Required Parameter(s) Missing' });
+			return false;
+		}
+		if (!parameterValidatorEmpty(req)) {
+			res.send({ code: 400, result: 'Bad Request: Empty Parameter(s)' });
+			return false;
+		}
+		if (!parameterValidatorType(req, methodMatch)) {
+			res.send({ code: 400, result: 'Bad Request: Wrong Parameter(s) Type' });
+			return false;
+		}
+		return true;
 	};
+
 	const methodValidator = (request, methods) => {
 		// check if request method is included in available methods
-		// get the method object from methods array
-		return methods.some((method) => method.name === request.pathInfo) ? methods.find((method) => method.name === request.pathInfo) : false;
+		return methods.some((method) => method.name === request.method);
 	};
 	const parameterValidatorAll = (request, methodMatch) => {
 		// check if method parameters includes all request parameters
-		return Object.keys(request.parameter).every((item) => methodMatch.parameters.find((param) => param.name === item));
+		return Object.keys(request.params).every((item) => methodMatch.parameters.find((param) => param.name === item));
 	};
 	const parameterValidatorRequired = (request, methodMatch) => {
 		// check if all required parameters are included in request parameters
-		return methodMatch.parameters.filter((item) => item.required == true).every((item) => Object.keys(request.parameter).includes(item.name));
+		return methodMatch.parameters.filter((item) => item.required == true).every((item) => Object.keys(request.params).includes(item.name));
 	};
 	const parameterValidatorEmpty = (request) => {
-		const keys = Object.keys(request.parameter);
+		const keys = Object.keys(request.params);
 		return keys.every((key) => {
-			return request.parameter[key] !== '';
+			return request.params[key] !== '';
 		});
 	};
 
 	const parameterValidatorType = function (request, methodMatch) {
 		return methodMatch.parameters.every((param) => {
-			let reqParamType = typeof request.parameter[param.name];
+			let reqParamType = typeof request.params[param.name];
 			return param.type === reqParamType;
 		});
 	};
 
 	const listen = () => {
-		return (request, res = response) => {
-			match(request);
+		return (req, res = response) => {
+			handle(req, res);
 			return res.end();
 		};
 	};
