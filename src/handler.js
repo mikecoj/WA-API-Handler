@@ -123,10 +123,12 @@ const App = () => {
 		});
 	};
 
-	const parameterValidatorType = function (request, methodMatch) {
-		return methodMatch.parameters.every((param) => {
-			let reqParamType = typeof request.params[param.name];
-			return param.type === reqParamType;
+	const parameterValidatorType = (request, methodMatch) => {
+		const params = Object.keys(request.params).filter((item) => item !== 'method');
+		return params.every((param) => {
+			const reqParamType = typeof request.params[param];
+			const methodParam = methodMatch.parameters.find((item) => item.name === param);
+			return methodParam.type === reqParamType;
 		});
 	};
 
