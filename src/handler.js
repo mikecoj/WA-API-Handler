@@ -84,10 +84,10 @@ const App = () => {
 			res.send({ code: 400, result: 'Bad Request: Empty Parameter(s)' });
 			return false;
 		}
-		if (!parameterValidatorType(req, methodMatch)) {
-			res.send({ code: 400, result: 'Bad Request: Wrong Parameter(s) Type' });
-			return false;
-		}
+		// if (!parameterValidatorType(req, methodMatch)) {
+		// 	res.send({ code: 400, result: 'Bad Request: Wrong Parameter(s) Type' });
+		// 	return false;
+		// }
 		return true;
 	};
 
@@ -97,7 +97,8 @@ const App = () => {
 	};
 	const parameterValidatorAll = (request, methodMatch) => {
 		// check if method parameters includes all request parameters
-		return Object.keys(request.params).every((item) => methodMatch.parameters.find((param) => param.name === item));
+		const reqParams = Object.keys(request.params).filter((item) => item !== 'method');
+		return reqParams.every((item) => methodMatch.parameters.find((param) => param.name === item));
 	};
 	const parameterValidatorRequired = (request, methodMatch) => {
 		// check if all required parameters are included in request parameters
