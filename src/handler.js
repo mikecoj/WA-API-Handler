@@ -13,9 +13,20 @@ const App = () => {
 		const type = request.hasOwnProperty('postData') ? 'POST' : 'GET';
 		const path = request.hasOwnProperty('pathInfo') ? request.pathInfo : null;
 		const query = request.hasOwnProperty('postData') ? request.postData.contents : request.queryString;
-		const params = request.parameter;
+		const params = jsonParser(request.parameter);
 		const method = path == null && params.hasOwnProperty('method') ? params.method : path;
 		req = { type, path, query, params, method };
+	};
+	const jsonParser = (object) => {
+		let objParsed = {};
+		for (const [key, value] of Object.entries(object)) {
+			try {
+				objParsed[key] = JSON.parse(value);
+			} catch (err) {
+				objParsed[key] = value;
+			}
+		}
+		return objParsed;
 	};
 	const response = {
 		res_ok: false,
@@ -84,16 +95,17 @@ const App = () => {
 			res.send({ code: 400, result: 'Bad Request: Empty Parameter(s)' });
 			return false;
 		}
-		// if (!parameterValidatorType(req, methodMatch)) {
-		// 	res.send({ code: 400, result: 'Bad Request: Wrong Parameter(s) Type' });
-		// 	return false;
-		// }
+		if (!parameterValidatorType(req, methodMatch)) {
+			res.send({ code: 400, result: 'Bad Request: Wrong Parameter(s) Type' });
+			return false;
+		}
 		return true;
 	};
 
 	const methodValidator = (request, methods) => {
 		// check if request method is included in available methods
-		return methods.some((method) => method.name === request.method);
+		const methodByType = methods.filter((method) => method.type === request.type);
+		return methodByType.some((method) => method.name === request.method);
 	};
 	const parameterValidatorAll = (request, methodMatch) => {
 		// check if method parameters includes all request parameters
@@ -124,7 +136,7 @@ const App = () => {
 			return res.end();
 		};
 	};
-	return { post, listen };
+	return { get, post, listen };
 };
 
 function create() {
