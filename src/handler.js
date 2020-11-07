@@ -1,33 +1,7 @@
 const App = () => {
 	let methods = [];
 	let req = {};
-	const method_obj = (type = '', name = '', parameters = {}, handler = () => {}) => {
-		return {
-			type,
-			name,
-			parameters,
-			handler,
-		};
-	};
-	const requestParser = (request) => {
-		const type = request.hasOwnProperty('postData') ? 'POST' : 'GET';
-		const path = request.hasOwnProperty('pathInfo') ? request.pathInfo : null;
-		const query = request.hasOwnProperty('postData') ? request.postData.contents : request.queryString;
-		const params = jsonParser(request.parameter);
-		const method = path == null && params.hasOwnProperty('method') ? params.method : path;
-		req = { type, path, query, params, method };
-	};
-	const jsonParser = (object) => {
-		let objParsed = {};
-		for (const [key, value] of Object.entries(object)) {
-			try {
-				objParsed[key] = JSON.parse(value);
-			} catch (err) {
-				objParsed[key] = value;
-			}
-		}
-		return objParsed;
-	};
+
 	const response = {
 		res_ok: false,
 		res_code: null,
@@ -61,15 +35,34 @@ const App = () => {
 		},
 	};
 
-	const post = (method, params = [], handler) => methods.push(method_obj('POST', method, params, handler));
-	const get = (method, params = [], handler) => methods.push(method_obj('GET', method, params, handler));
+	const requestParser = (request) => {
+		const type = request.hasOwnProperty('postData') ? 'POST' : 'GET';
+		const path = request.hasOwnProperty('pathInfo') ? request.pathInfo : null;
+		const query = request.hasOwnProperty('postData') ? request.postData.contents : request.queryString;
+		const params = jsonParser(request.parameter);
+		const method = path == null && params.hasOwnProperty('method') ? params.method : path;
+		req = { type, path, query, params, method };
+	};
 
-	const handle = (request, res) => {
-		requestParser(request);
-		if (match(req, res)) {
-			const methodMatch = methods.find((method) => method.name === req.method);
-			methodMatch.handler.apply(null, [req, res]);
+	const jsonParser = (object) => {
+		let objParsed = {};
+		for (const [key, value] of Object.entries(object)) {
+			try {
+				objParsed[key] = JSON.parse(value);
+			} catch (err) {
+				objParsed[key] = value;
+			}
 		}
+		return objParsed;
+	};
+
+	const method_obj = (type = '', name = '', parameters = {}, handler = () => {}) => {
+		return {
+			type,
+			name,
+			parameters,
+			handler,
+		};
 	};
 
 	const match = (req, res) => {
@@ -107,15 +100,18 @@ const App = () => {
 		const methodByType = methods.filter((method) => method.type === request.type);
 		return methodByType.some((method) => method.name === request.method);
 	};
+
 	const parameterValidatorAll = (request, methodMatch) => {
 		// check if method parameters includes all request parameters
 		const reqParams = Object.keys(request.params).filter((item) => item !== 'method');
 		return reqParams.every((item) => methodMatch.parameters.find((param) => param.name === item));
 	};
+
 	const parameterValidatorRequired = (request, methodMatch) => {
 		// check if all required parameters are included in request parameters
 		return methodMatch.parameters.filter((item) => item.required == true).every((item) => Object.keys(request.params).includes(item.name));
 	};
+
 	const parameterValidatorEmpty = (request) => {
 		const keys = Object.keys(request.params);
 		return keys.every((key) => {
@@ -130,6 +126,18 @@ const App = () => {
 			const methodParam = methodMatch.parameters.find((item) => item.name === param);
 			return methodParam.type === reqParamType;
 		});
+	};
+
+	const post = (method, params = [], handler) => methods.push(method_obj('POST', method, params, handler));
+
+	const get = (method, params = [], handler) => methods.push(method_obj('GET', method, params, handler));
+
+	const handle = (request, res) => {
+		requestParser(request);
+		if (match(req, res)) {
+			const methodMatch = methods.find((method) => method.name === req.method);
+			methodMatch.handler.apply(null, [req, res]);
+		}
 	};
 
 	const listen = () => {
