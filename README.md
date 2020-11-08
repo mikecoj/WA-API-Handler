@@ -7,6 +7,12 @@ Inspired by [**Express.js**](https://expressjs.com/)
 
 This mini-library uses **V8 Runtime** features. Make sure that your Google App Script project runs on **V8 Runtime** as well.
 
+## Full Documentation
+
+See the [Wiki](https://github.com/mikecoj/WA-API-Handler/wiki) for full documentation, examples and other information.
+
+See the [GitBook](https://mikecoj.gitbook.io/wa-api-handler/) full documentation.
+
 ## Installation
 
 There are two ways of installation:
