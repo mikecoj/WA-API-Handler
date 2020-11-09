@@ -76,7 +76,7 @@ The response object is used to return the information about the request to the c
 }
 ```
 
-#### Parameters
+#### Properties
 
 | Name   | Type    | Description                |
 | :----- | :------ | :------------------------- |
