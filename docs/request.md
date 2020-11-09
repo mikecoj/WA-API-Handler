@@ -2,7 +2,7 @@
 
 ## Request Object
 
-When an HTTP GET or POST request is made, Apps Script runs `doGet(e)`, respectively `doPost(e)` functions. In both cases, the `e` argument represents an event parameter that can contain information about request parameters. The application uses a parser to transform the `e` argument into a custom request object, allowing him to handle the requests much easier.
+When an HTTP GET or POST request is made, Apps Script runs `doGet(e)`, respectively `doPost(e)` functions. In both cases, the `e` argument represents an event parameter that can contain information about request parameters. The application uses a parser to transform the `e` argument into a custom request object, allowing it to handle the requests much easier.
 
 #### Constructor
 
