@@ -46,32 +46,21 @@ app.get('test', [{ name: 'message', type: 'string', required: true }], (req, res
 
 ### end\(\)
 
-This method is used by[`app.listen()`](wa-api-handler.md#listen)method and returns a [Content service](https://developers.google.com/apps-script/guides/content) [`TextOutput`](https://developers.google.com/apps-script/reference/content/text-output)object, that has JSON MIME type.
-
-{% hint style="danger" %}
-You cannot use this method, this method is used only by`app.listen()`method!
-{% endhint %}
-
-Code sample:
-
-{% code title="handler.js" %}
+This method returns the [**Response Object**](#response-object) in the JSON format.
 
 ```javascript
-...
-
-end: () => {
-			const response_obj = {
-				ok: this.res_ok,
-				code: this.res_code,
-				result: this.res_result,
-			};
-			return ContentService.createTextOutput(JSON.stringify(response_obj)).setMimeType(ContentService.MimeType.JSON);
-		}
-
-...
+/* This code sets the result message to "Hello World", 
+and returns the response object to the result variable.
+*/
+app.get(
+    'test', 
+    [{name: 'message', type: 'string', required: true}],
+    (req, res) => {
+        res.send('Hello World');
+        const result = res.end();
+    }
+)
 ```
-
-{% endcode %}
 
 ### Response Object
 
