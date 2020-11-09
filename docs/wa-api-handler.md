@@ -107,7 +107,7 @@ The parameter object is used for defining the method parameter\(s\), as well as 
 
 `{ name: <String>, type: <String>, required: <true/false> }`
 
-#### Parameters
+#### Properties
 
 | Name     | Type    | Description                                                                               |
 | :------- | :------ | :---------------------------------------------------------------------------------------- |
