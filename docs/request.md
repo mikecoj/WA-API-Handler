@@ -16,7 +16,7 @@ When an HTTP GET or POST request is made, Apps Script runs `doGet(e)`, respectiv
 }
 ```
 
-#### Parameters
+#### Properties
 
 | Name   | Type   | Description                                                                                    |
 | :----- | :----- | :--------------------------------------------------------------------------------------------- |
