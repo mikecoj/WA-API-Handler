@@ -101,7 +101,7 @@ const doGet = app.listen();
 
 ### Parameter Object
 
-The parameter object is used for defining the method's parameter\(s\), as well as for validation whenever the API is called.
+The parameter object is used for defining the method's parameter\(s\), as well as for validation of the HTTP request parameter\(s\).
 
 #### Constructor
 
