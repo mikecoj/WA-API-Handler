@@ -106,7 +106,7 @@ app.get('test', [{ name: 'message', type: 'string', required: true }], (req, res
 	res.send(req.params.message);
 });
 
-const doGet = (doPost = app.listen());
+const doGet = doPost = app.listen();
 ```
 
 Deploy the code as a Web App.
