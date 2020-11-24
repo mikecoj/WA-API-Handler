@@ -87,7 +87,7 @@ This method needs to be assigned to a variable named **doGet/doPost.**
 Returns a function that runs every time **doGet/doPost** is called.
 
 ```javascript
-const doGet = (doPost = app.listen());
+const doGet = doPost = app.listen();
 ```
 
 ## Deployment
