@@ -1,6 +1,6 @@
 ---
 description: >-
-  WA-API-Handler it's a Google App Script mini-library that helps to implement a
+  WA-API-Handler it's a Google App Script  helper class that helps to implement a
   REST API using Google Web App Deployment.
 ---
 
